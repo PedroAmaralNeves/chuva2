@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuva de Letras</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050a18;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Courier New', monospace;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Nuvem com desfoque reduzido */
+        .cloud {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50px;
+            filter: blur(8px); /* Desfoque mais nítido agora */
+            z-index: 10;
+        }
+        .cloud::after { content: ''; position: absolute; background: rgba(255, 255, 255, 0.9); border-radius: 50%; width: 110px; height: 110px; top: -55px; left: 35px; }
+        .cloud::before { content: ''; position: absolute; background: rgba(255, 255, 255, 0.9); border-radius: 50%; width: 130px; height: 130px; top: -75px; right: 35px; }
+
+        .ground {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .puddle {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(50%);
+            width: 0px;
+            height: 0px;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+            border-radius: 50%;
+            filter: blur(4px);
+            z-index: 5;
+        }
+
+        .ripple {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: ripple-effect 0.8s ease-out forwards;
+        }
+
+        @keyframes ripple-effect {
+            0% { width: 0; height: 0; opacity: 1; }
+            100% { width: 80px; height: 25px; opacity: 0; }
+        }
+
+        /* Estilo das Letras */
+        .drop {
+            position: absolute;
+            color: #ffffff;
+            font-weight: bold;
+            pointer-events: none;
+            animation: fall linear forwards;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0); opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { 
+                transform: translateY(calc(100vh - 160px)); 
+                opacity: 0; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        <div class="cloud"></div>
+        <div class="ground"></div>
+        <div class="puddle" id="puddle"></div>
+    </div>
+
+    <script>
+        const container = document.getElementById('mainContainer');
+        const puddle = document.getElementById('puddle');
+        let puddleWidth = 0;
+
+        function createDrop() {
+            const drop = document.createElement('div');
+            drop.classList.add('drop');
+            
+            // Sorteia uma letra aleatória de A a Z
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            drop.innerText = letters.charAt(Math.floor(Math.random() * letters.length));
+            
+            const cloudWidth = 160;
+            const randomX = (Math.random() * cloudWidth) - (cloudWidth / 2);
+            const posX = window.innerWidth / 2 + randomX;
+            
+            drop.style.left = posX + "px";
+            drop.style.top = "90px";
+            
+            const duration = Math.random() * 0.7 + 0.6;
+            drop.style.animationDuration = duration + "s";
+            drop.style.fontSize = Math.random() * 6 + 12 + "px";
+
+            container.appendChild(drop);
+
+            setTimeout(() => {
+                createRipple(posX);
+                growPuddle();
+                drop.remove();
+            }, duration * 1000);
+        }
+
+        function createRipple(x) {
+            const ripple = document.createElement('div');
+            ripple.classList.add('ripple');
+            ripple.style.left = x + "px";
+            ripple.style.bottom = "80px"; 
+            container.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 800);
+        }
+
+        function growPuddle() {
+            if (puddleWidth < 450) {
+                puddleWidth += 1;
+                puddle.style.width = puddleWidth + "px";
+                puddle.style.height = (puddleWidth * 0.2) + "px"; 
+            }
+        }
+
+        setInterval(createDrop, 70);
+    </script>
+</body>
+</html>
